@@ -1,0 +1,31 @@
+version: '3.8'
+services:
+  bingo:
+    container_name: bingo
+    image: medvich/bingo:20240108.1
+    restart: always
+    environment:
+      - TZ=Europe/Moscow
+      - LANG=C.UTF-8
+    ports:
+      - '80:7407'
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:7407/ping"]
+      start_period: 30s
+      retries: 3
+      timeout: 10s
+      interval: 5s
+    deploy:
+      resources:
+        limits:
+          memory: 1024M
+    labels:
+      - "autoheal=true"
+    network_mode: "host"
+  autoheal:
+    restart: always
+    image: willfarrell/autoheal
+    environment:
+      - AUTOHEAL_CONTAINER_LABEL=all
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
